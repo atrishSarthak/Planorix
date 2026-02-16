@@ -1,11 +1,20 @@
 {
   "buildCommand": "npm run build",
-  "framework": null,
   "installCommand": "npm install",
-  "rewrites": [
+  "framework": null,
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/api"
+      "src": "/build/(.*)",
+      "dest": "/build/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api"
     }
   ]
 }
