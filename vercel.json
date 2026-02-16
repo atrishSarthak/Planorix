@@ -1,20 +1,11 @@
 {
   "buildCommand": "npm run build",
+  "outputDirectory": "build/client",
   "installCommand": "npm install",
-  "framework": null,
-  "functions": {
-    "api/index.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/build/(.*)",
-      "dest": "/build/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
