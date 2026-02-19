@@ -59,15 +59,25 @@ npm run typecheck
 
 1. Push your code to GitHub
 2. Import project in Vercel
-3. Add environment variable:
-   - `VITE_PUTER_WORKER_URL`: Your Puter worker URL
+3. Configure environment variables in Vercel dashboard:
+   - Go to Project Settings → Environment Variables
+   - Add `VITE_PUTER_WORKER_URL` with your Puter worker URL
+   - Example: `https://brave-mouse-4972.puter.work`
 4. Deploy!
 
-Vercel will automatically redeploy on every push to main branch.
+Vercel will automatically detect React Router and configure the build settings.
+
+### Important Notes for Vercel
+
+- The `.env` file is gitignored for security
+- Use `.env.example` as a template
+- Always set `VITE_PUTER_WORKER_URL` in Vercel's environment variables
+- The app won't work without this environment variable
 
 ### Environment Variables
 
-- `VITE_PUTER_WORKER_URL` - Your Puter worker endpoint (required)
+Required:
+- `VITE_PUTER_WORKER_URL` - Your Puter worker endpoint (get from https://puter.com)
 
 ## 🔧 Puter Worker Setup
 

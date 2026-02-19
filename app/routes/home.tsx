@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import {ArrowRight, ArrowUpRight, Clock, Layers} from "lucide-react";
 import Button from "../../components/ui/Button";
 import Upload from "../../components/Upload";
-import {useNavigate} from "react-router";
+import {useNavigate, useOutletContext} from "react-router";
 import {useEffect, useRef, useState} from "react";
 import {createProject, getProjects} from "../../lib/puter.action";
 
@@ -16,6 +16,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
     const navigate = useNavigate();
+    const { userName, userId } = useOutletContext<AuthContext>();
     const [projects, setProjects] = useState<DesignItem[]>([]);
     const isCreatingProjectRef = useRef(false);
     const orbRef = useRef<HTMLDivElement>(null);
@@ -75,10 +76,12 @@ export default function Home() {
         fetchProjects();
     }, []);
 
-    // Mouse tracking for orb distortion
+    // Mouse tracking for orb distortion and movement
     useEffect(() => {
+        const orbContainer = document.querySelector('.orb-container') as HTMLElement;
+        
         const handleMouseMove = (e: MouseEvent) => {
-            if (!orbRef.current) return;
+            if (!orbRef.current || !orbContainer) return;
             
             const orb = orbRef.current;
             const rect = orb.getBoundingClientRect();
@@ -93,6 +96,11 @@ export default function Home() {
             const skewX = deltaX * 5;
             const skewY = deltaY * 5;
             
+            // Move container slightly opposite to mouse position
+            const moveX = -deltaX * 45; // Move opposite direction, more prominent amount
+            
+            orbContainer.style.transform = `translate(calc(-50% + ${moveX}px), -50%)`;
+            
             orb.style.transform = `
                 scale(1.2) 
                 rotateX(${rotateX}deg) 
@@ -102,11 +110,11 @@ export default function Home() {
         };
 
         const handleMouseLeave = () => {
-            if (!orbRef.current) return;
+            if (!orbRef.current || !orbContainer) return;
+            orbContainer.style.transform = 'translate(-50%, -50%)';
             orbRef.current.style.transform = '';
         };
 
-        const orbContainer = document.querySelector('.orb-container');
         if (orbContainer) {
             orbContainer.addEventListener('mousemove', handleMouseMove as any);
             orbContainer.addEventListener('mouseleave', handleMouseLeave);
@@ -139,10 +147,16 @@ export default function Home() {
                   </div>
 
                   <p className="hero-subtitle">
-                      Build beautiful spaces<br />
-                      at the speed of thought<br />
+                      Turn floor plans into <br />
+                      realistic 3D visuals<br />
                       <span style={{background: '#d9f573', padding: '0.2em 0.4em', borderRadius: '0.5rem', display: 'inline-block'}}>with PLANORIX</span>
                   </p>
+
+                  <div className="hero-subtitle-right">
+                      <span>No complex tools. </span>
+                      <span>No learning curve.</span>
+                      <span>Upload and see your space come to life.</span>
+                  </div>
               </div>
           </section>
 
@@ -150,7 +164,8 @@ export default function Home() {
           <section className="hero-secondary">
               <div className="hero-secondary-content">
                   <p className="description">
-                      PLANORIX is an AI-first design environment that helps you visualize, render, and ship architectural projects faster than ever.
+                      Planorix is an AI-first visualization platform that renders your floor plans into photorealistic 3D spaces in seconds<br/>
+                      Ship <span style={{textDecoration: 'underline', textDecorationColor: '#d9f573', textDecorationThickness: '3px', textUnderlineOffset: '4px'}}>faster</span>. Win <span style={{textDecoration: 'underline', textDecorationColor: '#d9f573', textDecorationThickness: '3px', textUnderlineOffset: '4px'}}>more clients</span>.
                   </p>
 
                   <div className="actions">
@@ -192,33 +207,38 @@ export default function Home() {
                   </div>
 
                   <div className="projects-grid">
-                      {projects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
-                          <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
-                              <div className="preview">
-                                  <img  src={renderedImage || sourceImage} alt="Project"
-                                  />
+                      {projects.map(({id, name, renderedImage, sourceImage, timestamp, ownerId, sharedBy}) => {
+                          const isOwnProject = ownerId === userId;
+                          const displayAuthor = isOwnProject ? 'You' : (sharedBy || userName || 'Anonymous');
+                          
+                          return (
+                              <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
+                                  <div className="preview">
+                                      <img  src={renderedImage || sourceImage} alt="Project"
+                                      />
 
-                                  <div className="badge">
-                                      <span>Community</span>
-                                  </div>
-                              </div>
-
-                              <div className="card-body">
-                                  <div>
-                                      <h3>{name}</h3>
-
-                                      <div className="meta">
-                                          <Clock size={12} />
-                                          <span>{new Date(timestamp).toLocaleDateString()}</span>
-                                          <span>By JS Mastery</span>
+                                      <div className="badge">
+                                          <span>Community</span>
                                       </div>
                                   </div>
-                                  <div className="arrow">
-                                      <ArrowUpRight size={18} />
+
+                                  <div className="card-body">
+                                      <div>
+                                          <h3>{name}</h3>
+
+                                          <div className="meta">
+                                              <Clock size={12} />
+                                              <span>{new Date(timestamp).toLocaleDateString()}</span>
+                                              <span>By {displayAuthor}</span>
+                                          </div>
+                                      </div>
+                                      <div className="arrow">
+                                          <ArrowUpRight size={18} />
+                                      </div>
                                   </div>
                               </div>
-                          </div>
-                      ))}
+                          );
+                      })}
                   </div>
               </div>
           </section>

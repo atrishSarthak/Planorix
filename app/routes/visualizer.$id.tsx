@@ -20,6 +20,33 @@ const VisualizerId = () => {
     const [currentImage, setCurrentImage] = useState<string | null>(null);
 
     const handleBack = () => navigate('/');
+    
+    const handleShare = async () => {
+        if (!currentImage) return;
+
+        try {
+            // Share only the image URL without additional text
+            if (navigator.share) {
+                await navigator.share({
+                    url: currentImage,
+                });
+            } else {
+                // Fallback: Copy image URL to clipboard
+                await navigator.clipboard.writeText(currentImage);
+                alert('Image URL copied to clipboard!');
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+            try {
+                await navigator.clipboard.writeText(currentImage);
+                alert('Image URL copied to clipboard!');
+            } catch (clipboardError) {
+                console.error('Clipboard error:', clipboardError);
+                alert('Unable to copy URL to clipboard.');
+            }
+        }
+    };
+    
     const handleExport = () => {
         if (!currentImage) return;
 
@@ -141,7 +168,12 @@ const VisualizerId = () => {
                             >
                                 <Download className="w-4 h-4 mr-2" /> Export
                             </Button>
-                            <Button size="sm" onClick={() => {}} className="share">
+                            <Button
+                                size="sm"
+                                onClick={handleShare}
+                                className="share"
+                                disabled={!currentImage}
+                            >
                                 <Share2 className="w-4 h-4 mr-2" />
                                 Share
                             </Button>
